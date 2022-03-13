@@ -40,35 +40,52 @@ use Middlewares\MiddlewareParameterized;
 use Controllers\FooController;
 use Controllers\BarController;
 
-use Chiron\Attributes\RouteAttributeReader;
+use Chiron\Attributes\RouteLocator;
+
+use Chiron\Core\Memory;
 
 // https://github.com/spiral/annotated-routes/blob/a2c928290c067df7cd9bb6c405e37877051c4955/src/Bootloader/AnnotatedRoutesBootloader.php#L68
+// https://github.com/symfony/symfony/blob/3eb26c1de901478c09f3965748c6a841eaebe7f0/src/Symfony/Component/Routing/Loader/AnnotationClassLoader.php#L147
 
 class RouteAttributeBootloader extends AbstractBootloader
 {
-    public function boot(Mapper $map)
+    public function boot(RouteLocator $locator, Mapper $map)
     {
-        $loader = new RouteAttributeReader(directory('@app/Controllers'));
+        $attributes = $locator->locateRouteAttributes();
 
-        $routes = $loader->loadRouteAttributes();
+        // Register a new route using attributes values.
+        foreach ($attributes as $attribute) {
+            $route = new Route($attribute['path']);
 
-        foreach ($routes as $route) {
-            //die(var_dump($route->getName()));
-
-/*
-            if ('__invoke' === $method->getName()) {
-                $handler = $class->getName(); // TODO : vérifier si il faut pas laisser concaténé le methode name (cad concaténer "::__invoke")
-            } else {
-                $handler = $class->getName().'::'.$method->getName();
+            if ($attribute['port'] !== null) {
+                $route = $route->setPort($attribute['port']);
             }
-*/
-            $handler = \Controllers\MainController::class . '::' . 'ping';
+            if ($attribute['scheme'] !== null) {
+                $route = $route->setScheme($attribute['scheme']);
+            }
+            if ($attribute['host'] !== null) {
+                $route = $route->setHost($attribute['host']);
+            }
+            if ($attribute['name'] !== null) {
+                $route = $route->setName($attribute['name']);
+            }
+            if ($attribute['methods'] !== []) {
+                $route = $route->setAllowedMethods($attribute['methods']);
+            }
+            if ($attribute['defaults'] !== []) {
+                $route = $route->setDefaults($attribute['defaults']);
+            }
+            if ($attribute['requirements'] !== []) {
+                $route = $route->setRequirements($attribute['requirements']);
+            }
+            if ($attribute['middlewares'] !== []) {
+                foreach ($attribute['middlewares'] as $middleware) {
+                    $route = $route->middleware($middleware); // TODO : prévoir une méthode setMiddlewares() dans la classe Route !!!!
+                }
+            }
 
-            $map->route($route->getPath())->to($handler)->name($route->getName());
+            $map->addRoute($route)->to($attribute['handler']);
         }
-
-        //die(var_dump($routes));
-
     }
 }
 

@@ -4,6 +4,30 @@ declare(strict_types = 1);
 
 namespace Chiron\Attributes\Attribute;
 
+use Chiron\Http\Message\RequestMethod as Method;
+
+//Et voici un exemple pour hydrater une classe (trouvé dans le code de cakephp) :
+/**
+     * Set state magic method to support var_export
+     *
+     * This method helps for applications that want to implement
+     * router caching.
+     *
+     * @param array<string, mixed> $fields Key/Value of object attributes
+     * @return static A new instance of the route
+     */
+/*
+    public static function __set_state(array $fields)
+    {
+        $class = static::class;
+        $obj = new $class('');
+        foreach ($fields as $field => $value) {
+            $obj->$field = $value;
+        }
+
+        return $obj;
+    }*/
+
 // TODO : passer les attributs de la classe en public pour éviter d'avoir des setters/getters qui ne servent à rien !!!
 
 // TODO : initialiser par défaut la methode de la route à "GET" ???? https://github.com/sunrise-php/http-router/blob/master/src/Annotation/Route.php#L157
@@ -11,181 +35,55 @@ namespace Chiron\Attributes\Attribute;
 
 // TODO : on doit vraiment permettre un attribut IS_REPEATABLE ??? et TARGET_CLASS ????
 
-#[\Attribute(\Attribute::IS_REPEATABLE | \Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
+//https://github.com/symfony/routing/blob/6.1/Annotation/Route.php
+
+#[\Attribute(\Attribute::IS_REPEATABLE | \Attribute::TARGET_METHOD)]
 class RouteAttribute
 {
-    private ?string $path = null;
-    private array $methods;
-    private array $schemes;
-    private ?string $name = null;
-    private array $requirements = [];
-    private array $options = [];
-    private array $defaults = []; // TODO : à virer !!!
-    private ?string $host = null;
-    private ?string $condition = null;
-    private ?int $priority = null;
-    private ?string $env = null;
+    // TODO : bien vérifier le comportement pour les middlewares !!!!
+    public string $path;
+    public ?int $port = null;
+    public ?string $scheme = null;
+    public ?string $host = null;
+    public ?string $name = null;
+    public array|string $methods = [];
+    public array $defaults = [];
+    public array $requirements = [];
+    public array $middlewares = [];
 
+    // TODO : vérifier si les "defaults" / "requirements" / "middlewares" sont bien des tableaux de string !!! si ce n'est pas le cas il faut changer le phpdoc
     /**
-     * @param string[]        $requirements
-     * @param string[]|string $methods
-     * @param string[]|string $schemes
+     * Constructor of the class
+     *
+     * @param  string          $path
+     * @param  int|null        $port
+     * @param  string|null     $scheme
+     * @param  string|null     $host
+     * @param  string          $name
+     * @param  string[]|string $methods
+     * @param  string[]        $defaults
+     * @param  string[]        $requirements
+     * @param  string[]        $middlewares
      */
-    // TODO : phpdoc à compléter !!!
     public function __construct(
-        ?string $path = null,
-        ?string $name = null,
-        array $requirements = [],
-        array $options = [],
-        array $defaults = [],
+        string $path,
+        ?int $port = null,
+        ?string $scheme = null,
         ?string $host = null,
+        ?string $name = null,
         array|string $methods = [],
-        array|string $schemes = [],
-        ?string $condition = null,
-        ?int $priority = null,
-        ?string $locale = null,
-        ?string $format = null,
-        ?bool $utf8 = null,
-        ?bool $stateless = null,
-        ?string $env = null
+        array $defaults = [],
+        array $requirements = [],
+        array $middlewares = []
     ) {
-        $this->path = $path; // TODO : attention je ne pense pas que le path puisse $etre null !!!!
-        $this->name = $name;
-        $this->requirements = $requirements;
-        $this->options = $options;
-        $this->defaults = $defaults;
-        $this->host = $host;
-        $this->condition = $condition;
-        $this->priority = $priority;
-        $this->env = $env;
-
-        $this->setMethods($methods);
-        $this->setSchemes($schemes);
-
-        if (null !== $locale) {
-            $this->defaults['_locale'] = $locale;
-        }
-
-        if (null !== $format) {
-            $this->defaults['_format'] = $format;
-        }
-
-        if (null !== $utf8) {
-            $this->options['utf8'] = $utf8;
-        }
-
-        if (null !== $stateless) {
-            $this->defaults['_stateless'] = $stateless;
-        }
-    }
-
-    public function setPath(string $path)
-    {
         $this->path = $path;
-    }
-
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    public function setHost(string $pattern)
-    {
-        $this->host = $pattern;
-    }
-
-    public function getHost()
-    {
-        return $this->host;
-    }
-
-    public function setName(string $name)
-    {
+        $this->port = $port;
+        $this->scheme = $scheme;
+        $this->host = $host;
         $this->name = $name;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function setRequirements(array $requirements)
-    {
-        $this->requirements = $requirements;
-    }
-
-    public function getRequirements()
-    {
-        return $this->requirements;
-    }
-
-    public function setOptions(array $options)
-    {
-        $this->options = $options;
-    }
-
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    public function setDefaults(array $defaults)
-    {
-        $this->defaults = $defaults;
-    }
-
-    public function getDefaults()
-    {
-        return $this->defaults;
-    }
-
-    public function setSchemes(array|string $schemes)
-    {
-        $this->schemes = (array) $schemes;
-    }
-
-    public function getSchemes()
-    {
-        return $this->schemes;
-    }
-
-    public function setMethods(array|string $methods)
-    {
         $this->methods = (array) $methods;
-    }
-
-    public function getMethods()
-    {
-        return $this->methods;
-    }
-
-    public function setCondition(?string $condition)
-    {
-        $this->condition = $condition;
-    }
-
-    public function getCondition()
-    {
-        return $this->condition;
-    }
-
-    public function setPriority(int $priority): void
-    {
-        $this->priority = $priority;
-    }
-
-    public function getPriority(): ?int
-    {
-        return $this->priority;
-    }
-
-    public function setEnv(?string $env): void
-    {
-        $this->env = $env;
-    }
-
-    public function getEnv(): ?string
-    {
-        return $this->env;
+        $this->defaults = $defaults;
+        $this->requirements = $requirements;
+        $this->middlewares = $middlewares;
     }
 }

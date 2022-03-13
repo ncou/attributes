@@ -1,0 +1,7 @@
+<?php
+
+return [
+    'locator_enabled' => true,
+    'controller_directory' => '@app/Controllers',
+    'use_cache' => env('ROUTE_CACHE', !env('DEBUG')),
+];
