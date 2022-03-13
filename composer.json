@@ -38,7 +38,7 @@
         "chiron": {
             "bootloaders": [
                 "Chiron\\Attributes\\Bootloader\\RouteClearCommandBootloader",
-                "Chiron\\Attributes\\Bootloader\\PublishAttributesBootloader",
+                "Chiron\\Attributes\\Bootloader\\PublishAttributesBootloader"
             ]
         }
     },
