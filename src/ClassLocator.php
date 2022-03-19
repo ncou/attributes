@@ -14,6 +14,11 @@ final class ClassLocator
         $filesystem = new Filesystem();
         $files = $filesystem->find($directory, '*.php'); // TODO : il faudra surement lever une ImproperlyConfiguredException si le répertoire n'existe pas !!!! ou si on passe directement le nom d'un fichier (car ce n'est pas le fonctionnement attendu !!!!).
 
+        $files = iterator_to_array($files);
+        usort($files, function (\SplFileInfo $a, \SplFileInfo $b) {
+            return (string) $a > (string) $b ? 1 : -1;
+        });
+
         $classes = [];
         foreach ($files as $file) {
             if ($class = static::findClass((string) $file)) {

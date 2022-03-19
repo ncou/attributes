@@ -1,5 +1,5 @@
 <?php
 
-class SecondClass
+class ClassToInclude
 {
 }

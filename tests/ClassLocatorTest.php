@@ -57,8 +57,9 @@ class ClassLocatorTest extends TestCase
     {
         $classes = ClassLocator::locate(__DIR__ . '/Classes/Multiple/');
 
-        $this->assertSame(2, count($classes));
+        $this->assertSame(3, count($classes));
         $this->assertSame("Chiron\Attributes\Test\Classes\Multiple\WithIncludes", $classes[0]->getName());
         $this->assertSame("Chiron\Attributes\Test\Classes\Multiple\WithTwoClass", $classes[1]->getName());
+        $this->assertSame("ClassToInclude", $classes[2]->getName());
     }
 }
