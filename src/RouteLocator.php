@@ -32,7 +32,7 @@ use Chiron\Attributes\Config\AttributesConfig;
 
 final class RouteLocator implements SingletonInterface
 {
-    public const MEMORY_SECTION = 'routes';
+    public const MEMORY_SECTION = 'routes'; // renommer en 'route_attributes'
 
     private AttributesConfig $config;
     private Memory $memory;
