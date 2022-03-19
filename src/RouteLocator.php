@@ -5,13 +5,12 @@ declare(strict_types = 1);
 namespace Chiron\Attributes;
 
 use Chiron\Attributes\Attribute\RouteAttribute;
-use Chiron\Core\Memory;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 
 use Chiron\Container\SingletonInterface;
-
+use Chiron\Core\Memory;
 use Chiron\Attributes\Config\AttributesConfig;
 
 //************ DOCUMENTATION !!!!!
@@ -67,7 +66,7 @@ final class RouteLocator implements SingletonInterface
     {
         // TODO : il faudra surement lever une exception si le répertoire n'existe pas !!!!
         $path = directory($this->config->getControllerDirectory()); // TODO : faire ce directory() directement dans le getteur de la classe de config !!! et il faudra aussi ajouter ou virer le '/' à la fin de ce path. je ne pense pas que cela change grand chose mais à vérifier !!!!!
-        $classes = ClassLocator::locate($path);
+        $classes = ClassLocator::locate($path); // TODO : faire un new ClassLocator dans le constructeur pour ne pas utiliser de méthode statiques ????
 
         $result = [];
         foreach ($classes as $class) {

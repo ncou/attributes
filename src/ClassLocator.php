@@ -6,7 +6,7 @@ namespace Chiron\Attributes;
 
 use Chiron\Filesystem\Filesystem;
 
-// TODO : transformer cette classe en trait ????
+// TODO : transformer cette classe en trait ???? ou alors en classe et virer la notion de static sur les méthodes !!!!
 final class ClassLocator
 {
     public static function locate(string $directory): array

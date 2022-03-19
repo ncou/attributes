@@ -25,94 +25,61 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
 use StdClass;
-use Chiron\Attributes\RouteAttributeReader;
+use Chiron\Attributes\RouteLocator;
+use Chiron\Attributes\Bootloader\RouteAttributeBootloader;
+use Chiron\Routing\Map;
+
 use Chiron\Core\Memory;
+use Chiron\Attributes\Config\AttributesConfig;
 
 //https://github.com/symfony/symfony/blob/60ce5a3dfbd90fad60cd39fcb3d7bf7888a48659/src/Symfony/Component/Routing/Tests/Loader/AnnotationClassLoaderTest.php#L52
 
 class RouteLocatorTest extends TestCase
 {
-    private function createLocator(string $path): RouteAttributeReader
+    private function createLocator(string $path): RouteLocator
     {
 
-/* // Exemple de code pour générer un fichier ou répertoire temporaire !!!
+        /* // Exemple de code pour générer un fichier ou répertoire temporaire !!!
 $tempfile = sys_get_temp_dir() . '/temp-' . md5(microtime());
 // Directory used to download the sources
 $sourcePath = sys_get_temp_dir().'/composer_archive'.uniqid();
 $filesystem->ensureDirectoryExists($sourcePath);
 */
-        $memory = new Memory(sys_get_temp_dir() . '/routes_locator/'); // TODO : initialiser la méthode stepup() avec la création du répertoire ? et dans la méthode tearDown faire un clear ???
 
-        return new RouteAttributeReader($path, $memory);
+        $cachePath = sys_get_temp_dir() . '/routes_locator/';
+        if (!is_dir($cachePath)) {
+            mkdir($cachePath, 0755);
+        }
+        $memory = new Memory($cachePath); // TODO : initialiser la méthode stepup() avec la création du répertoire ? et dans la méthode tearDown faire un clear ???
+
+        $config = new AttributesConfig([
+            'locator_enabled' => true,
+            'controller_directory' => $path,
+            'use_cache' => false,
+        ]);
+
+        return new RouteLocator($config, $memory);
     }
+
     public function testSimplePathRoute(): void
     {
         $locator = $this->createLocator(__DIR__ . '/Fixtures/ActionPathController/');
-        $routes = $locator->readRouteAttributes();
+        $routes = $locator->locateRouteAttributes();
 
         $this->assertCount(1, $routes);
         $this->assertSame([
             'path' => '/path',
+            'port' => null,
+            'scheme' => null,
+            'host' => null,
             'name' => 'action',
+            'methods' => [],
+            'defaults' => [],
+            'requirements' => [],
+            'middlewares' => [],
             'handler' => ['Chiron\Attributes\Test\Fixtures\ActionPathController\ActionPathController', 'action']
         ],
         $routes[0]);
     }
-
-    public function testMethodsAndSchemes()
-    {
-        $locator = $this->createLocator(__DIR__ . '/Fixtures/MethodsAndSchemes/');
-        $routes = $locator->readRouteAttributes();
-
-        $this->assertSame(['GET', 'POST'], $routes->get('array_many')->getMethods());
-        $this->assertSame(['http', 'https'], $routes->get('array_many')->getSchemes());
-        $this->assertSame(['GET'], $routes->get('array_one')->getMethods());
-        $this->assertSame(['http'], $routes->get('array_one')->getSchemes());
-        $this->assertSame(['POST'], $routes->get('string')->getMethods());
-        $this->assertSame(['https'], $routes->get('string')->getSchemes());
-    }
-
-    public function testMethodActionControllers()
-    {
-        $routes = $this->loader->load($this->getNamespace().'\MethodActionControllers');
-        $this->assertSame(['put', 'post'], array_keys($routes->all()));
-        $this->assertEquals('/the/path', $routes->get('put')->getPath());
-        $this->assertEquals('/the/path', $routes->get('post')->getPath());
-    }
-
-    public function testDefaultValuesForMethods()
-    {
-        $routes = $this->loader->load($this->getNamespace().'\DefaultValueController');
-        $this->assertCount(3, $routes);
-        $this->assertEquals('/{default}/path', $routes->get('action')->getPath());
-        $this->assertEquals('value', $routes->get('action')->getDefault('default'));
-        $this->assertEquals('Symfony', $routes->get('hello_with_default')->getDefault('name'));
-        $this->assertEquals('World', $routes->get('hello_without_default')->getDefault('name'));
-    }
-
-    public function testRouteWithoutName()
-    {
-        $routes = $this->loader->load($this->getNamespace().'\MissingRouteNameController')->all();
-        $this->assertCount(1, $routes);
-        $this->assertEquals('/path', reset($routes)->getPath());
-    }
-
-    public function testNothingButName()
-    {
-        $routes = $this->loader->load($this->getNamespace().'\NothingButNameController')->all();
-        $this->assertCount(1, $routes);
-        $this->assertEquals('/', reset($routes)->getPath());
-    }
-
-    public function testNonExistingClass()
-    {
-        $this->expectException(\LogicException::class);
-        $this->loader->load('ClassThatDoesNotExist');
-    }
-
-    public function testLoadingAbstractClass()
-    {
-        $this->expectException(\LogicException::class);
-        $this->loader->load(AbstractClassController::class);
-    }
 }
+
