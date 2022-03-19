@@ -1,9 +1,19 @@
 {
     "name": "chiron/attributes",
     "description": "Give it a nice description!",
-    "keywords": [],
     "license": "MIT",
     "type": "library",
+    "keywords": [],
+    "require": {
+        "php": "^8.0 || ^8.1",
+        "ext-tokenizer": "*",
+        "chiron/routing": "^1.0"
+    },
+    "require-dev": {
+        "chiron/devtools": "^1.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "Chiron\\Attributes\\": "src/"
@@ -14,37 +24,34 @@
             "Chiron\\Attributes\\Test\\": "tests/"
         }
     },
-    "require": {
-        "php": "^8.0 || ^8.1",
-        "chiron/routing": "^1.0",
-        "ext-tokenizer": "*"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^8.0",
-        "phpstan/phpstan": "^0.12",
-        "phpstan/phpstan-phpunit": "^0.12",
-        "overtrue/phplint": "^2.0",
-        "chiron/coding-standard": "^3.0"
-    },
-    "scripts": {
-        "phpunit": "phpunit --colors=always",
-        "test-coverage": "phpunit --coverage-clover clover.xml",
-        "phpstan": "phpstan analyse --ansi",
-        "phplint": "phplint --ansi",
-        "check-style": "phpcs src tests",
-        "fix-style": "phpcbf src tests"
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/package-versions-deprecated": true,
+            "phpstan/extension-installer": true,
+            "ergebnis/composer-normalize": true,
+            "captainhook/plugin-composer": true,
+            "chiron/devtools": true
+        }
     },
     "extra": {
+        "captainhook": {
+            "force-install": true
+        },
         "chiron": {
             "bootloaders": [
                 "Chiron\\Attributes\\Bootloader\\RouteClearCommandBootloader",
                 "Chiron\\Attributes\\Bootloader\\PublishAttributesBootloader"
             ]
+        },
+        "chiron/devtools": {
+            "command-prefix": "dev"
+        },
+        "ramsey/conventional-commits": {
+            "configFile": "conventional-commits.json"
         }
     },
-    "config": {
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+    "scripts": {
+        "phpunit": "devtools dev:test:unit -- --colors=always --testdox --verbose"
     }
 }
