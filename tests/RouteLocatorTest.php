@@ -34,7 +34,14 @@ class RouteLocatorTest extends TestCase
 {
     private function createLocator(string $path): RouteAttributeReader
     {
-        $memory = new Memory(sys_get_temp_dir() . '/routes_locator/');
+
+/* // Exemple de code pour générer un fichier ou répertoire temporaire !!!
+$tempfile = sys_get_temp_dir() . '/temp-' . md5(microtime());
+// Directory used to download the sources
+$sourcePath = sys_get_temp_dir().'/composer_archive'.uniqid();
+$filesystem->ensureDirectoryExists($sourcePath);
+*/
+        $memory = new Memory(sys_get_temp_dir() . '/routes_locator/'); // TODO : initialiser la méthode stepup() avec la création du répertoire ? et dans la méthode tearDown faire un clear ???
 
         return new RouteAttributeReader($path, $memory);
     }
