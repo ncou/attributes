@@ -3,5 +3,5 @@
 return [
     'locator_enabled' => true,
     'controller_directory' => '@app/Controllers',
-    'use_cache' => env('ROUTE_CACHE', !env('DEBUG')),
+    'use_cache' => env('ROUTE_CACHE', !env('APP_DEBUG')), // TODO : attention on utilise la variable d'environnement "DEBUG" ou "APP_DEBUG" !!!!
 ];

@@ -112,6 +112,7 @@ final class RouteLocator implements SingletonInterface
      * @return iterable<int, RouteAttribute>
      */
     //https://github.com/symfony/symfony/blob/6.1/src/Symfony/Component/Config/Resource/ReflectionClassResource.php#L123
+    // TODO : mettre un return type \Generator ???
     private function getAttributes(ReflectionClass|ReflectionMethod $reflection): iterable
     {
         $attributes = $reflection->getAttributes(

@@ -18,7 +18,7 @@ final class AttributesConfig extends AbstractInjectableConfig
         return Expect::structure([
             'locator_enabled' => Expect::bool()->default(true),
             'controller_directory' => Expect::string()->default('@app/Controllers'),
-            'use_cache' => Expect::bool()->default(env('ROUTE_CACHE', !env('DEBUG'))),
+            'use_cache' => Expect::bool()->default(env('ROUTE_CACHE', !env('APP_DEBUG'))), // TODO : attention on utilise la variable d'environnement "DEBUG" ou "APP_DEBUG" !!!!
         ]);
     }
 
